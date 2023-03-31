@@ -25,7 +25,7 @@
       <pubDate>Fri, 31 Mar 2023 08:55:33 +0800</pubDate>
       
       <guid>https://yingqiao1998.github.io/posts/oasis/my-second-post/</guid>
-      <description></description>
+      <description>到目前为止，我们见过的变量都只能村粗和单个数据项，这样的变量称为标量 (scalar)。C 语言也支持聚合变量，这类变量可以存储多个数据项。C 语言提供两种类 型的聚合变量:数组和结构体。这章我们主要讲讲数组，结构体留到以后再讲。</description>
     </item>
     
     <item>
@@ -34,7 +34,7 @@
       <pubDate>Fri, 31 Mar 2023 08:55:12 +0800</pubDate>
       
       <guid>https://yingqiao1998.github.io/posts/life/my-first-post/</guid>
-      <description></description>
+      <description>数组是含有多个数据项的数据结构，并且这些数据项都具有相同的数据类型。这些数 据项称为数组的元素，我们可以根据元素在数组中的位置来选取元素。</description>
     </item>
     
   </channel>

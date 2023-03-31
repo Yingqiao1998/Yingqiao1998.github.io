@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Yingqiao&#39;s Blog</title>
-    <link>https://yingqiao1998.github.io/</link>
-    <description>Recent content on Yingqiao&#39;s Blog</description>
+    <title>oasis on Yingqiao&#39;s Blog</title>
+    <link>https://yingqiao1998.github.io/series/oasis/</link>
+    <description>Recent content in oasis on Yingqiao&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 31 Mar 2023 09:33:47 +0800</lastBuildDate><atom:link href="https://yingqiao1998.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 31 Mar 2023 09:33:47 +0800</lastBuildDate><atom:link href="https://yingqiao1998.github.io/series/oasis/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Su</title>
       <link>https://yingqiao1998.github.io/posts/oasis/su/</link>
@@ -26,15 +26,6 @@
       
       <guid>https://yingqiao1998.github.io/posts/oasis/my-second-post/</guid>
       <description>到目前为止，我们见过的变量都只能村粗和单个数据项，这样的变量称为标量 (scalar)。C 语言也支持聚合变量，这类变量可以存储多个数据项。C 语言提供两种类 型的聚合变量:数组和结构体。这章我们主要讲讲数组，结构体留到以后再讲。</description>
-    </item>
-    
-    <item>
-      <title>My First Post</title>
-      <link>https://yingqiao1998.github.io/posts/life/my-first-post/</link>
-      <pubDate>Fri, 31 Mar 2023 08:55:12 +0800</pubDate>
-      
-      <guid>https://yingqiao1998.github.io/posts/life/my-first-post/</guid>
-      <description>数组是含有多个数据项的数据结构，并且这些数据项都具有相同的数据类型。这些数 据项称为数组的元素，我们可以根据元素在数组中的位置来选取元素。</description>
     </item>
     
   </channel>
