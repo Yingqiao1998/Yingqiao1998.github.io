@@ -2,13 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://yingqiao1998.github.io/series/oasis/</loc>
+    <loc>https://yingqiao1998.github.io/categories/</loc>
+    <lastmod>2023-03-31T09:33:47+08:00</lastmod>
+  </url><url>
+    <loc>https://yingqiao1998.github.io/categories/oasis/</loc>
     <lastmod>2023-03-31T09:33:47+08:00</lastmod>
   </url><url>
     <loc>https://yingqiao1998.github.io/posts/</loc>
-    <lastmod>2023-03-31T09:33:47+08:00</lastmod>
-  </url><url>
-    <loc>https://yingqiao1998.github.io/series/</loc>
     <lastmod>2023-03-31T09:33:47+08:00</lastmod>
   </url><url>
     <loc>https://yingqiao1998.github.io/posts/oasis/su/</loc>
@@ -20,13 +20,11 @@
     <loc>https://yingqiao1998.github.io/posts/oasis/my-second-post/</loc>
     <lastmod>2023-03-31T08:55:33+08:00</lastmod>
   </url><url>
-    <loc>https://yingqiao1998.github.io/series/life/</loc>
+    <loc>https://yingqiao1998.github.io/categories/life/</loc>
     <lastmod>2023-03-31T08:55:12+08:00</lastmod>
   </url><url>
     <loc>https://yingqiao1998.github.io/posts/life/my-first-post/</loc>
     <lastmod>2023-03-31T08:55:12+08:00</lastmod>
-  </url><url>
-    <loc>https://yingqiao1998.github.io/categories/</loc>
   </url><url>
     <loc>https://yingqiao1998.github.io/tags/</loc>
   </url>
