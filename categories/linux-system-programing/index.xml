@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on 英桥在干什么吖</title>
-    <link>https://yingqiao1998.github.io/posts/</link>
-    <description>Recent content in Posts on 英桥在干什么吖</description>
+    <title>Linux System Programing on 英桥在干什么吖</title>
+    <link>https://yingqiao1998.github.io/categories/linux-system-programing/</link>
+    <description>Recent content in Linux System Programing on 英桥在干什么吖</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 31 Mar 2023 08:55:12 +0800</lastBuildDate><atom:link href="https://yingqiao1998.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 31 Mar 2023 08:55:12 +0800</lastBuildDate><atom:link href="https://yingqiao1998.github.io/categories/linux-system-programing/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>入门和概念</title>
       <link>https://yingqiao1998.github.io/posts/linuxsystemprograming/%E7%AC%AC%E4%B8%80%E7%AB%A0/</link>
