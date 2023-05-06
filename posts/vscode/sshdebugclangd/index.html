@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Hugo 0.111.3">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="Yingqiao" />
+  <meta property="og:url" content="https://yingqiao1998.github.io/posts/vscode/sshdebugclangd/" />
+  <link rel="canonical" href="https://yingqiao1998.github.io/posts/vscode/sshdebugclangd/" /><link rel="alternate" type="application/atom+xml" href="https://yingqiao1998.github.ioindex.xml" title="英桥在干什么吖">
+
+  <script type="application/ld+json">
+  {
+      "@context" : "http://schema.org",
+      "@type" : "BlogPosting",
+      "mainEntityOfPage": {
+           "@type": "WebPage",
+           "@id": "https:\/\/yingqiao1998.github.io"
+      },
+      "articleSection" : "posts",
+      "name" : "Ssh,debug,clangd",
+      "headline" : "Ssh,debug,clangd",
+      "description" : "SSH 使用 vscode remote ssh 插件：\n\/********** * Clangd * **********\/ \/\/ Clangd 运行参数(在终端\/命令行输入 clangd --help-list-hidden 可查看更多) \u0026#34;clangd.arguments\u0026#34;: [ \/\/ 全局补全(输入时弹出的建议将会给出不在当前作用域可见的索引，插入后将自动补充作用域标识符) \/\/如，在`int main()`中直接写`cout`， \/\/ 即使没有`#include \u0026lt;iostream\u0026gt;`，也会给出`std::cout`的建议 \/\/ 配合\u0026#34;--header-insertion=iwyu\u0026#34; (见下)，还可自动插入缺失的头文件 \u0026#34;--all-scopes-completion\u0026#34;, \/\/ 后台分析并保存索引文件 \u0026#34;--background-index\u0026#34;, \/\/ 启用 Clang-Tidy 以提供「静态检查」 \u0026#34;--clang-tidy\u0026#34;, \/\/ 当 clangd 准备就绪时，用它来分析建议 \u0026#34;--completion-parse=auto\u0026#34;, \/\/ 建议风格：打包(重载函数只会给出一个建议）；反可以设置为 detailed \u0026#34;--completion-style=bundled\u0026#34;, \/\/ 启用读取项目配置文件和用户配置文件，其设置格式均为YAML \/\/项目配置文件是在项目文件夹里的“.clangd” \/\/用户配置文件是“clangd\/config.yaml”，该文件来自如下目录 \/\/ Windows: %USERPROFILE%\\AppData\\Local \/\/ MacOS: ~\/Library\/Preferences\/ \/\/ Others: $XDG_CONFIG_HOME, usually ~\/.config \u0026#34;--enable-config\u0026#34;, \/\/ 默认格式化风格: 在 clangd 没能找到 .clang-format 文件时采用 \/\/这里用的谷歌开源项目代码风格（可用的有 LLVM, Google, Chromium, Mozilla, Webkit, Microsoft, GNU 等） \u0026#34;--fallback-style=Google\u0026#34;, \/\/ 启用这项时，补全函数时，将会给参数提供占位符，键入后按 Tab 可以切换到下一占位符，乃至函数末 \/\/我选择禁用 \u0026#34;--function-arg-placeholders=false\u0026#34;, \/\/ 输入建议中，已包含头文件的项与还未包含头文件的项会以圆点加以区分 \u0026#34;--header-insertion-decorators\u0026#34;, \/\/ 插入建议时自动补充头文件 \u0026#34;--header-insertion=iwyu\u0026#34;, \/\/ 为标准库头文件启用清理功能（不成熟！） \/\/ \u0026#34;--include-cleaner-stdlib\u0026#34;, \/\/ 让 Clangd 生成更详细的日志 \u0026#34;--log=verbose\u0026#34;, \/\/ 分析转发函数 (emplace-like) \u0026#34;--parse-forwarding-functions\u0026#34;, \/\/ pch优化的位置 (memory 或 disk，选择memory会增加内存开销，但会提升性能) \u0026#34;--pch-storage=memory\u0026#34;, \/\/ 输出的 JSON 文件更美观 \u0026#34;--pretty\u0026#34;, \/\/ 查找gcc路径 \u0026#34;--query-driver=\u0026#34;, \/\/ 建议的排序方案：heuristics (启发式), decision_forest (决策树) \u0026#34;--ranking-model=heuristics\u0026#34;, \/\/ 同时开启的任务数量 \u0026#34;-j=12\u0026#34;, \u0026#34;-compile-commands-dir=build\u0026#34; ], \/\/ 自动检测 clangd 更新 \u0026#34;clangd.",
+      "inLanguage" : "en-US",
+      "author" : "Yingqiao",
+      "creator" : "Yingqiao",
+      "publisher": "Yingqiao",
+      "accountablePerson" : "Yingqiao",
+      "copyrightHolder" : "Yingqiao",
+      "copyrightYear" : "2023",
+      "datePublished": "2023-05-06 10:08:01 \u002b0800 CST",
+      "dateModified" : "2023-05-06 10:08:01 \u002b0800 CST",
+      "url" : "https:\/\/yingqiao1998.github.io\/posts\/vscode\/sshdebugclangd\/",
+      "keywords" : [  ]
+  }
+</script>
+<title>Ssh,debug,clangd</title>
+  <meta property="og:title" content="Ssh,debug,clangd" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="SSH 使用 vscode remote ssh 插件：
+/********** * Clangd * **********/ // Clangd 运行参数(在终端/命令行输入 clangd --help-list-hidden 可查看更多) &amp;#34;clangd.arguments&amp;#34;: [ // 全局补全(输入时弹出的建议将会给出不在当前作用域可见的索引，插入后将自动补充作用域标识符) //如，在`int main()`中直接写`cout`， // 即使没有`#include &amp;lt;iostream&amp;gt;`，也会给出`std::cout`的建议 // 配合&amp;#34;--header-insertion=iwyu&amp;#34; (见下)，还可自动插入缺失的头文件 &amp;#34;--all-scopes-completion&amp;#34;, // 后台分析并保存索引文件 &amp;#34;--background-index&amp;#34;, // 启用 Clang-Tidy 以提供「静态检查」 &amp;#34;--clang-tidy&amp;#34;, // 当 clangd 准备就绪时，用它来分析建议 &amp;#34;--completion-parse=auto&amp;#34;, // 建议风格：打包(重载函数只会给出一个建议）；反可以设置为 detailed &amp;#34;--completion-style=bundled&amp;#34;, // 启用读取项目配置文件和用户配置文件，其设置格式均为YAML //项目配置文件是在项目文件夹里的“.clangd” //用户配置文件是“clangd/config.yaml”，该文件来自如下目录 // Windows: %USERPROFILE%\AppData\Local // MacOS: ~/Library/Preferences/ // Others: $XDG_CONFIG_HOME, usually ~/.config &amp;#34;--enable-config&amp;#34;, // 默认格式化风格: 在 clangd 没能找到 .clang-format 文件时采用 //这里用的谷歌开源项目代码风格（可用的有 LLVM, Google, Chromium, Mozilla, Webkit, Microsoft, GNU 等） &amp;#34;--fallback-style=Google&amp;#34;, // 启用这项时，补全函数时，将会给参数提供占位符，键入后按 Tab 可以切换到下一占位符，乃至函数末 //我选择禁用 &amp;#34;--function-arg-placeholders=false&amp;#34;, // 输入建议中，已包含头文件的项与还未包含头文件的项会以圆点加以区分 &amp;#34;--header-insertion-decorators&amp;#34;, // 插入建议时自动补充头文件 &amp;#34;--header-insertion=iwyu&amp;#34;, // 为标准库头文件启用清理功能（不成熟！） // &amp;#34;--include-cleaner-stdlib&amp;#34;, // 让 Clangd 生成更详细的日志 &amp;#34;--log=verbose&amp;#34;, // 分析转发函数 (emplace-like) &amp;#34;--parse-forwarding-functions&amp;#34;, // pch优化的位置 (memory 或 disk，选择memory会增加内存开销，但会提升性能) &amp;#34;--pch-storage=memory&amp;#34;, // 输出的 JSON 文件更美观 &amp;#34;--pretty&amp;#34;, // 查找gcc路径 &amp;#34;--query-driver=&amp;#34;, // 建议的排序方案：heuristics (启发式), decision_forest (决策树) &amp;#34;--ranking-model=heuristics&amp;#34;, // 同时开启的任务数量 &amp;#34;-j=12&amp;#34;, &amp;#34;-compile-commands-dir=build&amp;#34; ], // 自动检测 clangd 更新 &amp;#34;clangd." />
+  <meta name="description" content="SSH 使用 vscode remote ssh 插件：
+/********** * Clangd * **********/ // Clangd 运行参数(在终端/命令行输入 clangd --help-list-hidden 可查看更多) &amp;#34;clangd.arguments&amp;#34;: [ // 全局补全(输入时弹出的建议将会给出不在当前作用域可见的索引，插入后将自动补充作用域标识符) //如，在`int main()`中直接写`cout`， // 即使没有`#include &amp;lt;iostream&amp;gt;`，也会给出`std::cout`的建议 // 配合&amp;#34;--header-insertion=iwyu&amp;#34; (见下)，还可自动插入缺失的头文件 &amp;#34;--all-scopes-completion&amp;#34;, // 后台分析并保存索引文件 &amp;#34;--background-index&amp;#34;, // 启用 Clang-Tidy 以提供「静态检查」 &amp;#34;--clang-tidy&amp;#34;, // 当 clangd 准备就绪时，用它来分析建议 &amp;#34;--completion-parse=auto&amp;#34;, // 建议风格：打包(重载函数只会给出一个建议）；反可以设置为 detailed &amp;#34;--completion-style=bundled&amp;#34;, // 启用读取项目配置文件和用户配置文件，其设置格式均为YAML //项目配置文件是在项目文件夹里的“.clangd” //用户配置文件是“clangd/config.yaml”，该文件来自如下目录 // Windows: %USERPROFILE%\AppData\Local // MacOS: ~/Library/Preferences/ // Others: $XDG_CONFIG_HOME, usually ~/.config &amp;#34;--enable-config&amp;#34;, // 默认格式化风格: 在 clangd 没能找到 .clang-format 文件时采用 //这里用的谷歌开源项目代码风格（可用的有 LLVM, Google, Chromium, Mozilla, Webkit, Microsoft, GNU 等） &amp;#34;--fallback-style=Google&amp;#34;, // 启用这项时，补全函数时，将会给参数提供占位符，键入后按 Tab 可以切换到下一占位符，乃至函数末 //我选择禁用 &amp;#34;--function-arg-placeholders=false&amp;#34;, // 输入建议中，已包含头文件的项与还未包含头文件的项会以圆点加以区分 &amp;#34;--header-insertion-decorators&amp;#34;, // 插入建议时自动补充头文件 &amp;#34;--header-insertion=iwyu&amp;#34;, // 为标准库头文件启用清理功能（不成熟！） // &amp;#34;--include-cleaner-stdlib&amp;#34;, // 让 Clangd 生成更详细的日志 &amp;#34;--log=verbose&amp;#34;, // 分析转发函数 (emplace-like) &amp;#34;--parse-forwarding-functions&amp;#34;, // pch优化的位置 (memory 或 disk，选择memory会增加内存开销，但会提升性能) &amp;#34;--pch-storage=memory&amp;#34;, // 输出的 JSON 文件更美观 &amp;#34;--pretty&amp;#34;, // 查找gcc路径 &amp;#34;--query-driver=&amp;#34;, // 建议的排序方案：heuristics (启发式), decision_forest (决策树) &amp;#34;--ranking-model=heuristics&amp;#34;, // 同时开启的任务数量 &amp;#34;-j=12&amp;#34;, &amp;#34;-compile-commands-dir=build&amp;#34; ], // 自动检测 clangd 更新 &amp;#34;clangd." />
+  <meta property="og:locale" content="zh-CN" /><meta property="og:image" content="" />
+  
+
+  
+    <style>body{font-family:bree serif,sans-serif;-webkit-font-smoothing:antialiased;margin:0 20px}article{max-width:800px;margin-left:auto;margin-right:auto}a{color:#000;text-decoration:none}a:hover{font-weight:600;text-decoration:underline}.post-ads{margin:50px 0}.markdown-body{font-size:18px;max-width:100%}.markdown-body a{text-decoration:underline;text-decoration-color:#000}.markdown-body blockquote{margin:0;padding:0 1em;color:#57606a;border-left:.25em solid #d0d7de}.markdown-body pre{padding:16px;overflow:auto;border-radius:10px}.markdown-body code{padding:.2em .4em;font-size:85%;background-color:#f6f8fa;border-radius:6px}.markdown-body pre>code{padding:0;font-size:100%;background-color:inherit;border:0}.Chinese .markdown-body{line-height:200%}.site-date-catalog{font-size:2rem}.header-title{font-size:2rem;font-weight:700;margin-top:32px;font-family:bungee shade,sans-serif}.header-title a{text-decoration:none}.header-subtitle{color:#666}.header-items{margin:10px 0}.header-item{margin:0 5px}.header-line{width:100%;border-width:2px;border-color:#482936;border-style:solid none none none}.lang-switch{font-weight:600}#posts-list{min-height:600px}.posts-line{font-size:1.2rem;margin:12px 0}.posts-categories{font-size:.8rem;margin:auto;text-align:center}.posts-category{padding:3px 0;border:#000 2px solid;border-radius:5px}.site-footer{margin-top:50px}.site-footer-item{margin-right:12px}.post-content img{max-width:100%;display:block;margin-right:auto;margin-top:12px}.post-header{margin-bottom:50px}.post-title{font-size:2rem;font-weight:600}.post-tags{display:inline;font-weight:600;padding:2px 5px;margin-right:6px;border:#000 2px solid;border-radius:5px}.post-date{font-weight:800;font-style:italic}.post-author{float:right;font-weight:600}.page-content{min-height:60%}.post-content{margin-bottom:50px}.post-content p{hyphens:auto;line-height:1.8;text-justify:ideographic;margin-bottom:1em}.related-content{border-width:3px;border-style:solid;border-color:#000;padding:0 10px;margin-bottom:50px;margin-top:100px}.related-content li{margin:5px 0}.taxonomy-term{font-size:3rem}.gallery-img{text-align:center}.gallery-img span{text-align:center}.gallery-img-desc{font-size:.8em;font-weight:800}#disqus_thread{position:relative}#disqus_thread:after{content:"";display:block;height:55px;width:100%;position:absolute;bottom:0;background:#fff}@media screen and (max-width:600px){.header-title,.header-subtitle,.header-items{text-align:center}.posts-line{font-size:16px}.markdown-body{font-size:16px}.post-title{font-size:2rem}.post-content p{letter-spacing:.05em}}@media screen and (max-width:48em){.posts-category{display:none}}</style>
+  
+  
+    <style>.container,.container-fluid{margin-right:auto;margin-left:auto}.container-fluid{padding-right:2rem;padding-left:2rem}.row{box-sizing:border-box;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-flex:0;-ms-flex:0 1 auto;flex:initial;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;margin-right:-.5rem;margin-left:-.5rem}.row.reverse{-webkit-box-orient:horizontal;-webkit-box-direction:reverse;-ms-flex-direction:row-reverse;flex-direction:row-reverse}.col.reverse{-webkit-box-orient:vertical;-webkit-box-direction:reverse;-ms-flex-direction:column-reverse;flex-direction:column-reverse}.col-xs,.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9,.col-xs-offset-0,.col-xs-offset-1,.col-xs-offset-10,.col-xs-offset-11,.col-xs-offset-12,.col-xs-offset-2,.col-xs-offset-3,.col-xs-offset-4,.col-xs-offset-5,.col-xs-offset-6,.col-xs-offset-7,.col-xs-offset-8,.col-xs-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-xs{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-xs-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-xs-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-xs-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-xs-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-xs-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-xs-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-xs-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-xs-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-xs-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-xs-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-xs-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-xs-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-xs-offset-0{margin-left:0}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-11{margin-left:91.66666667%}.start-xs{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-xs{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-xs{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-xs{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-xs{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-xs{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-xs{-ms-flex-pack:distribute;justify-content:space-around}.between-xs{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-xs{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-xs{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}@media only screen and (min-width:48em){.container{width:49rem}.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-offset-0,.col-sm-offset-1,.col-sm-offset-10,.col-sm-offset-11,.col-sm-offset-12,.col-sm-offset-2,.col-sm-offset-3,.col-sm-offset-4,.col-sm-offset-5,.col-sm-offset-6,.col-sm-offset-7,.col-sm-offset-8,.col-sm-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-sm{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-sm-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-sm-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-sm-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-sm-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-sm-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-sm-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-sm-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-sm-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-sm-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-sm-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-sm-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-sm-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-sm-offset-0{margin-left:0}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-11{margin-left:91.66666667%}.start-sm{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-sm{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-sm{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-sm{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-sm{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-sm{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-sm{-ms-flex-pack:distribute;justify-content:space-around}.between-sm{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-sm{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-sm{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:64em){.container{width:65rem}.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-offset-0,.col-md-offset-1,.col-md-offset-10,.col-md-offset-11,.col-md-offset-12,.col-md-offset-2,.col-md-offset-3,.col-md-offset-4,.col-md-offset-5,.col-md-offset-6,.col-md-offset-7,.col-md-offset-8,.col-md-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-md{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-md-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-md-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-md-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-md-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-md-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-md-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-md-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-md-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-md-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-md-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-md-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-md-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-md-offset-0{margin-left:0}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-3{margin-left:25%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-6{margin-left:50%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-9{margin-left:75%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-11{margin-left:91.66666667%}.start-md{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-md{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-md{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-md{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-md{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-md{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-md{-ms-flex-pack:distribute;justify-content:space-around}.between-md{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-md{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-md{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:75em){.container{width:76rem}.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-offset-0,.col-lg-offset-1,.col-lg-offset-10,.col-lg-offset-11,.col-lg-offset-12,.col-lg-offset-2,.col-lg-offset-3,.col-lg-offset-4,.col-lg-offset-5,.col-lg-offset-6,.col-lg-offset-7,.col-lg-offset-8,.col-lg-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-lg{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-lg-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-lg-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-lg-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-lg-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-lg-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-lg-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-lg-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-lg-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-lg-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-lg-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-lg-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-lg-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-lg-offset-0{margin-left:0}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-11{margin-left:91.66666667%}.start-lg{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-lg{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-lg{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-lg{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-lg{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-lg{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-lg{-ms-flex-pack:distribute;justify-content:space-around}.between-lg{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-lg{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-lg{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}</style>
+  
+
+  
+
+  <link href="/index.xml" rel="alternate" type="application/rss+xml"
+    title="英桥在干什么吖">
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Bungee+Shade" rel="stylesheet">
+  
+  
+
+  
+  
+</head>
+
+
+<body>
+  <article class="post " id="article">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="site-header">
+          
+<header>
+  <div class="header-title">
+    <a href="/"
+      >阿桥在干什么吖</a
+    >
+  </div>
+  <div class="header-subtitle">the Death of You and Me.</div>
+</header>
+<div class="row end-md center-xs header-items">
+  
+  <div class="header-item">
+    <a href="https://github.com/yingqiao1998" target="_blank">Github</a>
+  </div>
+  
+</div>
+<div class="row end-xs">
+   
+</div>
+<div class="header-line"></div>
+
+        </div>
+        <header class="post-header">
+          <h1 class="post-title">Ssh,debug,clangd</h1>
+          
+          <div class="row post-desc">
+            <div class="col-xs-6">
+              
+              <time class="post-date" datetime="2023-05-06 10:08:01 CST">
+                06 May 2023
+              </time>
+              
+            </div>
+            <div class="col-xs-6">
+              
+              <div class="post-author">
+                <a target="_blank" href="https://yingqiao1998.github.io/">@Yingqiao</a>
+              </div>
+              
+            </div>
+          </div>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h3 id="ssh">SSH</h3>
+<p>使用 vscode remote ssh 插件：</p>
+<p><img src="/images/remote-ssh%E6%8F%92%E4%BB%B6.png" alt=""></p>
+<p><img src="/images/%E4%B8%BB%E6%9C%BA%E6%A0%87%E8%AF%86.png" alt=""></p>
+<p><img src="/images/ssh_config.png" alt=""></p>
+<p><img src="/images/vscode_debug.png" alt=""></p>
+<div class="highlight line-numbers"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>  <span style="">/**********</span>
+</span></span><span style="display:flex;"><span>   <span style="">*</span> <span style="">Clangd</span> <span style="">*</span>
+</span></span><span style="display:flex;"><span>   <span style="">**********/</span>
+</span></span><span style="display:flex;"><span>  <span style="font-style:italic">// Clangd 运行参数(在终端/命令行输入 clangd --help-list-hidden 可查看更多)
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">&#34;clangd.arguments&#34;</span><span style="">:</span> [
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 全局补全(输入时弹出的建议将会给出不在当前作用域可见的索引，插入后将自动补充作用域标识符)
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//如，在`int main()`中直接写`cout`，
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//    即使没有`#include &lt;iostream&gt;`，也会给出`std::cout`的建议
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//    配合&#34;--header-insertion=iwyu&#34; (见下)，还可自动插入缺失的头文件
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--all-scopes-completion&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 后台分析并保存索引文件
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--background-index&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 启用 Clang-Tidy 以提供「静态检查」
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--clang-tidy&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 当 clangd 准备就绪时，用它来分析建议
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--completion-parse=auto&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 建议风格：打包(重载函数只会给出一个建议）；反可以设置为 detailed
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--completion-style=bundled&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 启用读取项目配置文件和用户配置文件，其设置格式均为YAML
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//项目配置文件是在项目文件夹里的“.clangd”
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//用户配置文件是“clangd/config.yaml”，该文件来自如下目录
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//    Windows: %USERPROFILE%\AppData\Local
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//    MacOS: ~/Library/Preferences/
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//    Others: $XDG_CONFIG_HOME, usually ~/.config
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--enable-config&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 默认格式化风格: 在 clangd 没能找到 .clang-format 文件时采用
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//这里用的谷歌开源项目代码风格（可用的有 LLVM, Google, Chromium, Mozilla, Webkit, Microsoft, GNU 等）
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--fallback-style=Google&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 启用这项时，补全函数时，将会给参数提供占位符，键入后按 Tab 可以切换到下一占位符，乃至函数末
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//我选择禁用
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--function-arg-placeholders=false&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 输入建议中，已包含头文件的项与还未包含头文件的项会以圆点加以区分
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--header-insertion-decorators&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 插入建议时自动补充头文件
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--header-insertion=iwyu&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 为标准库头文件启用清理功能（不成熟！）
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">// &#34;--include-cleaner-stdlib&#34;,
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">// 让 Clangd 生成更详细的日志
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--log=verbose&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 分析转发函数 (emplace-like)
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--parse-forwarding-functions&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// pch优化的位置 (memory 或 disk，选择memory会增加内存开销，但会提升性能)
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--pch-storage=memory&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 输出的 JSON 文件更美观
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--pretty&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 查找gcc路径
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--query-driver=&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 建议的排序方案：heuristics (启发式), decision_forest (决策树)
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;--ranking-model=heuristics&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 同时开启的任务数量
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">&#34;-j=12&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-compile-commands-dir=build&#34;</span>
+</span></span><span style="display:flex;"><span>  ]<span style="">,</span>
+</span></span><span style="display:flex;"><span>  <span style="font-style:italic">// 自动检测 clangd 更新
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">&#34;clangd.checkUpdates&#34;</span><span style="">:</span> <span style="font-weight:bold">true</span><span style="">,</span>
+</span></span><span style="display:flex;"><span>  <span style="font-style:italic">// 默认编译器选项：在 clangd 没能找到 compile_flags.json 文件时采用
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">// 缺陷是不能如读取到 compile_flags.json 时一样直接索引同一项目的不同文件，因为没有它 clangd 仅能保守地分析
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">//系统头文件、当前文件、当前文件`#include`的文件
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">// compile_flags.json 可通过 CMake 等工具生成
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">&#34;clangd.fallbackFlags&#34;</span><span style="">:</span> [
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-pedantic&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wall&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wextra&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wcast-align&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wdouble-promotion&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wformat=2&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wimplicit-fallthrough&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wmisleading-indentation&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wnon-virtual-dtor&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wnull-dereference&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wold-style-cast&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Woverloaded-virtual&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wpedantic&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wshadow&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wunused&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-pthread&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-fuse-ld=lld&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-fsanitize=address&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-fsanitize=undefined&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-stdlib=libc&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-std=c11&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">&#34;-Wno-implicit-function-declaration&#34;</span>
+</span></span><span style="display:flex;"><span>  ]<span style="">,</span>
+</span></span><span style="display:flex;"><span>  <span style="font-style:italic">// 重启 clangd 时重载配置
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">// 重启方法：
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">//Windows: Alt + Shift + P 打开命令面板，然后搜索“clangd: restart”
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">//MacOS: Command + Shift + P 打开命令面板，然后搜索“clangd: restart&#34;
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">&#34;clangd.onConfigChanged&#34;</span><span style="">:</span> <span style="font-style:italic">&#34;restart&#34;</span><span style="">,</span>
+</span></span><span style="display:flex;"><span>  <span style="font-style:italic">// 借助网上的信息排序建议
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">&#34;clangd.serverCompletionRanking&#34;</span><span style="">:</span> <span style="font-weight:bold">true</span><span style="">,</span>
+</span></span><span style="display:flex;"><span>  <span style="font-style:italic">&#34;clangd.detectExtensionConflicts&#34;</span><span style="">:</span> <span style="font-weight:bold">true</span><span style="">,</span>
+</span></span><span style="display:flex;"><span>  <span style="font-style:italic">// clangd的snippets有很多的跳转点，不用这个就必须手动触发Intellisense了
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>  <span style="font-style:italic">&#34;editor.suggest.snippetsPreventQuickSuggestions&#34;</span><span style="">:</span> <span style="font-weight:bold">false</span><span style="">,</span>
+</span></span></code></pre></div><p><img src="/images/clangd%E6%8F%92%E4%BB%B6.png" alt=""></p>
+<p><img src="/images/clangd%E9%85%8D%E7%BD%AE.png" alt=""></p>
+<p><img src="/images/compile_commands.png" alt=""></p>
+
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
+          <div class="row">
+            <div class="col-xs-12">
+              
+            </div>
+          </div>
+
+          
+
+
+
+          
+          
+          <div style="height: 50px;"></div>
+          
+        
+
+        <div class="site-footer">
+  
+  
+</div>
+
+      </div>
+    </div>
+  </article>
+
+  
+
+<script>
+  
+  
+    
+    
+  
+</script>
+
+  
+
+</body>
+
+</html>

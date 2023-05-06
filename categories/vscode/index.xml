@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vscode on 英桥在干什么吖</title>
+    <link>https://yingqiao1998.github.io/categories/vscode/</link>
+    <description>Recent content in Vscode on 英桥在干什么吖</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 06 May 2023 10:08:01 +0800</lastBuildDate><atom:link href="https://yingqiao1998.github.io/categories/vscode/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Ssh,debug,clangd</title>
+      <link>https://yingqiao1998.github.io/posts/vscode/sshdebugclangd/</link>
+      <pubDate>Sat, 06 May 2023 10:08:01 +0800</pubDate>
+      
+      <guid>https://yingqiao1998.github.io/posts/vscode/sshdebugclangd/</guid>
+      <description>SSH 使用 vscode remote ssh 插件：
+/********** * Clangd * **********/ // Clangd 运行参数(在终端/命令行输入 clangd --help-list-hidden 可查看更多) &amp;#34;clangd.arguments&amp;#34;: [ // 全局补全(输入时弹出的建议将会给出不在当前作用域可见的索引，插入后将自动补充作用域标识符) //如，在`int main()`中直接写`cout`， // 即使没有`#include &amp;lt;iostream&amp;gt;`，也会给出`std::cout`的建议 // 配合&amp;#34;--header-insertion=iwyu&amp;#34; (见下)，还可自动插入缺失的头文件 &amp;#34;--all-scopes-completion&amp;#34;, // 后台分析并保存索引文件 &amp;#34;--background-index&amp;#34;, // 启用 Clang-Tidy 以提供「静态检查」 &amp;#34;--clang-tidy&amp;#34;, // 当 clangd 准备就绪时，用它来分析建议 &amp;#34;--completion-parse=auto&amp;#34;, // 建议风格：打包(重载函数只会给出一个建议）；反可以设置为 detailed &amp;#34;--completion-style=bundled&amp;#34;, // 启用读取项目配置文件和用户配置文件，其设置格式均为YAML //项目配置文件是在项目文件夹里的“.clangd” //用户配置文件是“clangd/config.yaml”，该文件来自如下目录 // Windows: %USERPROFILE%\AppData\Local // MacOS: ~/Library/Preferences/ // Others: $XDG_CONFIG_HOME, usually ~/.config &amp;#34;--enable-config&amp;#34;, // 默认格式化风格: 在 clangd 没能找到 .clang-format 文件时采用 //这里用的谷歌开源项目代码风格（可用的有 LLVM, Google, Chromium, Mozilla, Webkit, Microsoft, GNU 等） &amp;#34;--fallback-style=Google&amp;#34;, // 启用这项时，补全函数时，将会给参数提供占位符，键入后按 Tab 可以切换到下一占位符，乃至函数末 //我选择禁用 &amp;#34;--function-arg-placeholders=false&amp;#34;, // 输入建议中，已包含头文件的项与还未包含头文件的项会以圆点加以区分 &amp;#34;--header-insertion-decorators&amp;#34;, // 插入建议时自动补充头文件 &amp;#34;--header-insertion=iwyu&amp;#34;, // 为标准库头文件启用清理功能（不成熟！） // &amp;#34;--include-cleaner-stdlib&amp;#34;, // 让 Clangd 生成更详细的日志 &amp;#34;--log=verbose&amp;#34;, // 分析转发函数 (emplace-like) &amp;#34;--parse-forwarding-functions&amp;#34;, // pch优化的位置 (memory 或 disk，选择memory会增加内存开销，但会提升性能) &amp;#34;--pch-storage=memory&amp;#34;, // 输出的 JSON 文件更美观 &amp;#34;--pretty&amp;#34;, // 查找gcc路径 &amp;#34;--query-driver=&amp;#34;, // 建议的排序方案：heuristics (启发式), decision_forest (决策树) &amp;#34;--ranking-model=heuristics&amp;#34;, // 同时开启的任务数量 &amp;#34;-j=12&amp;#34;, &amp;#34;-compile-commands-dir=build&amp;#34; ], // 自动检测 clangd 更新 &amp;#34;clangd.</description>
+    </item>
+    
+  </channel>
+</rss>

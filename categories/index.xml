@@ -5,6 +5,25 @@
     <link>https://yingqiao1998.github.io/categories/</link>
     <description>Recent content in Categories on 英桥在干什么吖</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-CN</language><atom:link href="https://yingqiao1998.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 06 May 2023 10:08:01 +0800</lastBuildDate><atom:link href="https://yingqiao1998.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vscode</title>
+      <link>https://yingqiao1998.github.io/categories/vscode/</link>
+      <pubDate>Sat, 06 May 2023 10:08:01 +0800</pubDate>
+      
+      <guid>https://yingqiao1998.github.io/categories/vscode/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linux System Programing</title>
+      <link>https://yingqiao1998.github.io/categories/linux-system-programing/</link>
+      <pubDate>Fri, 31 Mar 2023 08:55:12 +0800</pubDate>
+      
+      <guid>https://yingqiao1998.github.io/categories/linux-system-programing/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>
