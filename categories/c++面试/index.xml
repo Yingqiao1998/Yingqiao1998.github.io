@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>c&#43;&#43;面试 on 英桥在干什么吖</title>
+    <link>https://yingqiao1998.github.io/categories/c&#43;&#43;%E9%9D%A2%E8%AF%95/</link>
+    <description>Recent content in c&#43;&#43;面试 on 英桥在干什么吖</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 20 Jun 2023 20:04:57 +0800</lastBuildDate><atom:link href="https://yingqiao1998.github.io/categories/c++%E9%9D%A2%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>一 总有不得不回答的问题</title>
+      <link>https://yingqiao1998.github.io/posts/c&#43;&#43;%E9%9D%A2%E8%AF%95/%E6%80%BB%E6%9C%89%E4%B8%8D%E5%BE%97%E4%B8%8D%E5%9B%9E%E7%AD%94%E7%9A%84%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Tue, 20 Jun 2023 20:04:57 +0800</pubDate>
+      
+      <guid>https://yingqiao1998.github.io/posts/c&#43;&#43;%E9%9D%A2%E8%AF%95/%E6%80%BB%E6%9C%89%E4%B8%8D%E5%BE%97%E4%B8%8D%E5%9B%9E%E7%AD%94%E7%9A%84%E9%97%AE%E9%A2%98/</guid>
+      <description>问题来源: https://www.zhihu.com/question/290102232/answer/2586920294 1. 信号的生命周期? “信号有一个非常明确的生命周期。首先，产生（raise）信号（有时也说信号被发出或生成）。然后内核存储信号，直到可以发送该信号。最后，一旦有空闲，内核就会适当地处理信号。根据进程的请求，内核会执行以下三种操作之一： 忽略信号 不采取任何操作。但是有两种信号不能被忽略：SIGKILL和SIGSTOP。这样做的原因是系统管理员需要能够杀死或停止进程，如果进程能够选择忽略SIGKILL（使进程不能被杀死）或SIGSTOP（使进程不能被停止）将破坏这一权力。 捕获并处理信号 内核会暂停该进程正在执行的代码，并跳转到先前注册过的函数。接下来进程会执行这个函数。一旦进程从该函数返回，它会跳回到捕获信号的地方继续执行。 经常捕获的两种信号是SIGINT和SIGTERM。进程捕获SIGINT来处理用户产生的中断符——例如终端能捕获该信号并返回到主提示符。进程捕获SIGTERM以便在结束前执行必要的清理工作，例如断开网络，或删除临时文件。SIGKILL和SIGSTOP不能被捕获。 执行信号的默认操作 该操作取决于被发送的信号。默认操作通常是终止进程。例如，对SIGKILL来说就是这样。然而，许多信号是为在特定情况下的特殊目的而提供的，这些信号在默认的情况下是被忽略的，因为很多程序不关心它们。我们将很快介绍各种信号和及其默认操作。 过去，当信号被发送后，处理信号的函数只知道出现了某个信号，除此之外，对发生了什么情况却是一无所知。现在，内核能给接收信号的编程人员提供大量的上下文信息。正如我们后面将看到的，信号甚至能传递用户定义的数据。”
+摘录来自 Linux系统编程(第2版) [美]Robert Love 此材料可能受版权保护。
+2. 信号的产生方式? Linux信号可以通过以下方式产生：
+用户输入：例如在终端中按下ctrl+c会发送SIGINT（中断）信号。
+系统事件：例如子进程完成，会发送SIGCHLD（子进程退出）信号。
+软件错误：例如访问非法内存地址，会发送SIGSEGV（段错误）信号。
+显式发送信号：例如使用kill命令向指定进程发送信号。
+硬件异常：例如除零错误，会发送SIGFPE（浮点异常）信号。
+定时器到期：例如使用alarm或setitimer函数设置定时器，当定时器到期时会发送SIGALRM（定时器到期）信号。
+其他情况：例如进程收到CTRL+\键，会发送SIGQUIT（退出）信号。
+总之，信号是一种异步通知机制，用于处理各种事件和异常情况。在Linux系统中，信号起着非常重要的作用，因为它们允许不同进程之间进行通信，同时还提供了异常处理机制。
+3. 信号的处理方式? Linux信号的处理方式分为3种：忽略、捕获和默认动作。
+忽略信号：如果将一个信号设置为被忽略，当收到该信号时，系统不会采取任何措施。这对一些不需要处理的信号（例如SIGWINCH）非常有用。
+捕获信号：可以使用signal或sigaction函数来指定一个信号的处理程序。当收到该信号时，操作系统将调用此处理程序来处理它。处理程序可以执行任何适当的操作，例如打印消息、修改全局变量等。
+默认动作：每个信号都有一个默认动作。默认动作可能是终止进程、终止进程并生成核心转储文件、停止进程或什么都不做。通常通过改变信号的默认动作来处理信号是不安全的，因为可能会导致不可预测的行为。因此，使用捕获信号的方式进行信号处理更加可靠。
+要处理信号，请使用signal或sigaction函数。这些函数允许您指定您希望对信号执行的操作。您还可以使用kill函数向其他进程发送信号。
+4. 如何消除隐式转换？ 在 C++ 中，可以通过使用关键字 explicit 来消除隐式转换。将构造函数声明为 explicit 表示该构造函数只能用于显式初始化，而不能进行隐式类型转换。
+5. 重载、重写和隐藏的区别? 在 C++ 中，重载、重写和隐藏都是面向对象程序设计中的概念，它们的含义和使用方式有所不同。
+重载（Overloading）：指在同一个作用域内定义多个名称相同但参数列表不同的函数或者运算符。重载函数或运算符可以根据传递参数的类型和数量选择最匹配的版本进行调用。C++ 允许对大部分函数和运算符进行重载，包括构造函数、析构函数、赋值运算符等。
+重写（Overriding）：指在派生类中重新实现基类的虚函数，使得派生类的对象能够根据自己的需要提供更具体的实现。重写只适用于虚函数，因为只有虚函数才能在运行时根据对象的实际类型进行动态绑定。
+隐藏（Hiding）：指在派生类中定义了与基类同名的函数或变量，从而隐藏了基类的同名成员。如果派生类中没有显式地使用 using 关键字来引入基类的同名成员，则基类的同名成员在派生类中将无法直接访问。
+下面是一个简单的例子：
+#include &amp;lt;iostream&amp;gt; class Animal { public: virtual void makeSound() const { std::cout &amp;lt;&amp;lt; &amp;#34;Animal is making a sound\n&amp;#34;; } }; class Cat : public Animal { public: void makeSound() const override { std::cout &amp;lt;&amp;lt; &amp;#34;Meow!</description>
+    </item>
+    
+  </channel>
+</rss>

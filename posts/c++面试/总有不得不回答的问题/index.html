@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Hugo 0.113.0">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="Yingqiao" />
+  <meta property="og:url" content="https://yingqiao1998.github.io/posts/c&#43;&#43;%E9%9D%A2%E8%AF%95/%E6%80%BB%E6%9C%89%E4%B8%8D%E5%BE%97%E4%B8%8D%E5%9B%9E%E7%AD%94%E7%9A%84%E9%97%AE%E9%A2%98/" />
+  <link rel="canonical" href="https://yingqiao1998.github.io/posts/c&#43;&#43;%E9%9D%A2%E8%AF%95/%E6%80%BB%E6%9C%89%E4%B8%8D%E5%BE%97%E4%B8%8D%E5%9B%9E%E7%AD%94%E7%9A%84%E9%97%AE%E9%A2%98/" /><link rel="alternate" type="application/atom+xml" href="https://yingqiao1998.github.ioindex.xml" title="英桥在干什么吖">
+
+  <script type="application/ld+json">
+  {
+      "@context" : "http://schema.org",
+      "@type" : "BlogPosting",
+      "mainEntityOfPage": {
+           "@type": "WebPage",
+           "@id": "https:\/\/yingqiao1998.github.io"
+      },
+      "articleSection" : "posts",
+      "name" : "一 总有不得不回答的问题",
+      "headline" : "一 总有不得不回答的问题",
+      "description" : "问题来源: https:\/\/www.zhihu.com\/question\/290102232\/answer\/2586920294 1. 信号的生命周期? “信号有一个非常明确的生命周期。首先，产生（raise）信号（有时也说信号被发出或生成）。然后内核存储信号，直到可以发送该信号。最后，一旦有空闲，内核就会适当地处理信号。根据进程的请求，内核会执行以下三种操作之一： 忽略信号 不采取任何操作。但是有两种信号不能被忽略：SIGKILL和SIGSTOP。这样做的原因是系统管理员需要能够杀死或停止进程，如果进程能够选择忽略SIGKILL（使进程不能被杀死）或SIGSTOP（使进程不能被停止）将破坏这一权力。 捕获并处理信号 内核会暂停该进程正在执行的代码，并跳转到先前注册过的函数。接下来进程会执行这个函数。一旦进程从该函数返回，它会跳回到捕获信号的地方继续执行。 经常捕获的两种信号是SIGINT和SIGTERM。进程捕获SIGINT来处理用户产生的中断符——例如终端能捕获该信号并返回到主提示符。进程捕获SIGTERM以便在结束前执行必要的清理工作，例如断开网络，或删除临时文件。SIGKILL和SIGSTOP不能被捕获。 执行信号的默认操作 该操作取决于被发送的信号。默认操作通常是终止进程。例如，对SIGKILL来说就是这样。然而，许多信号是为在特定情况下的特殊目的而提供的，这些信号在默认的情况下是被忽略的，因为很多程序不关心它们。我们将很快介绍各种信号和及其默认操作。 过去，当信号被发送后，处理信号的函数只知道出现了某个信号，除此之外，对发生了什么情况却是一无所知。现在，内核能给接收信号的编程人员提供大量的上下文信息。正如我们后面将看到的，信号甚至能传递用户定义的数据。”\n摘录来自 Linux系统编程(第2版) [美]Robert Love 此材料可能受版权保护。\n2. 信号的产生方式? Linux信号可以通过以下方式产生：\n用户输入：例如在终端中按下ctrl\u002bc会发送SIGINT（中断）信号。\n系统事件：例如子进程完成，会发送SIGCHLD（子进程退出）信号。\n软件错误：例如访问非法内存地址，会发送SIGSEGV（段错误）信号。\n显式发送信号：例如使用kill命令向指定进程发送信号。\n硬件异常：例如除零错误，会发送SIGFPE（浮点异常）信号。\n定时器到期：例如使用alarm或setitimer函数设置定时器，当定时器到期时会发送SIGALRM（定时器到期）信号。\n其他情况：例如进程收到CTRL\u002b\\键，会发送SIGQUIT（退出）信号。\n总之，信号是一种异步通知机制，用于处理各种事件和异常情况。在Linux系统中，信号起着非常重要的作用，因为它们允许不同进程之间进行通信，同时还提供了异常处理机制。\n3. 信号的处理方式? Linux信号的处理方式分为3种：忽略、捕获和默认动作。\n忽略信号：如果将一个信号设置为被忽略，当收到该信号时，系统不会采取任何措施。这对一些不需要处理的信号（例如SIGWINCH）非常有用。\n捕获信号：可以使用signal或sigaction函数来指定一个信号的处理程序。当收到该信号时，操作系统将调用此处理程序来处理它。处理程序可以执行任何适当的操作，例如打印消息、修改全局变量等。\n默认动作：每个信号都有一个默认动作。默认动作可能是终止进程、终止进程并生成核心转储文件、停止进程或什么都不做。通常通过改变信号的默认动作来处理信号是不安全的，因为可能会导致不可预测的行为。因此，使用捕获信号的方式进行信号处理更加可靠。\n要处理信号，请使用signal或sigaction函数。这些函数允许您指定您希望对信号执行的操作。您还可以使用kill函数向其他进程发送信号。\n4. 如何消除隐式转换？ 在 C\u002b\u002b 中，可以通过使用关键字 explicit 来消除隐式转换。将构造函数声明为 explicit 表示该构造函数只能用于显式初始化，而不能进行隐式类型转换。\n5. 重载、重写和隐藏的区别? 在 C\u002b\u002b 中，重载、重写和隐藏都是面向对象程序设计中的概念，它们的含义和使用方式有所不同。\n重载（Overloading）：指在同一个作用域内定义多个名称相同但参数列表不同的函数或者运算符。重载函数或运算符可以根据传递参数的类型和数量选择最匹配的版本进行调用。C\u002b\u002b 允许对大部分函数和运算符进行重载，包括构造函数、析构函数、赋值运算符等。\n重写（Overriding）：指在派生类中重新实现基类的虚函数，使得派生类的对象能够根据自己的需要提供更具体的实现。重写只适用于虚函数，因为只有虚函数才能在运行时根据对象的实际类型进行动态绑定。\n隐藏（Hiding）：指在派生类中定义了与基类同名的函数或变量，从而隐藏了基类的同名成员。如果派生类中没有显式地使用 using 关键字来引入基类的同名成员，则基类的同名成员在派生类中将无法直接访问。\n下面是一个简单的例子：\n#include \u0026lt;iostream\u0026gt; class Animal { public: virtual void makeSound() const { std::cout \u0026lt;\u0026lt; \u0026#34;Animal is making a sound\\n\u0026#34;; } }; class Cat : public Animal { public: void makeSound() const override { std::cout \u0026lt;\u0026lt; \u0026#34;Meow!",
+      "inLanguage" : "en-US",
+      "author" : "Yingqiao",
+      "creator" : "Yingqiao",
+      "publisher": "Yingqiao",
+      "accountablePerson" : "Yingqiao",
+      "copyrightHolder" : "Yingqiao",
+      "copyrightYear" : "2023",
+      "datePublished": "2023-06-20 20:04:57 \u002b0800 CST",
+      "dateModified" : "2023-06-20 20:04:57 \u002b0800 CST",
+      "url" : "https:\/\/yingqiao1998.github.io\/posts\/c\u002b\u002b%E9%9D%A2%E8%AF%95\/%E6%80%BB%E6%9C%89%E4%B8%8D%E5%BE%97%E4%B8%8D%E5%9B%9E%E7%AD%94%E7%9A%84%E9%97%AE%E9%A2%98\/",
+      "keywords" : [  ]
+  }
+</script>
+<title>一 总有不得不回答的问题</title>
+  <meta property="og:title" content="一 总有不得不回答的问题" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="问题来源: https://www.zhihu.com/question/290102232/answer/2586920294 1. 信号的生命周期? “信号有一个非常明确的生命周期。首先，产生（raise）信号（有时也说信号被发出或生成）。然后内核存储信号，直到可以发送该信号。最后，一旦有空闲，内核就会适当地处理信号。根据进程的请求，内核会执行以下三种操作之一： 忽略信号 不采取任何操作。但是有两种信号不能被忽略：SIGKILL和SIGSTOP。这样做的原因是系统管理员需要能够杀死或停止进程，如果进程能够选择忽略SIGKILL（使进程不能被杀死）或SIGSTOP（使进程不能被停止）将破坏这一权力。 捕获并处理信号 内核会暂停该进程正在执行的代码，并跳转到先前注册过的函数。接下来进程会执行这个函数。一旦进程从该函数返回，它会跳回到捕获信号的地方继续执行。 经常捕获的两种信号是SIGINT和SIGTERM。进程捕获SIGINT来处理用户产生的中断符——例如终端能捕获该信号并返回到主提示符。进程捕获SIGTERM以便在结束前执行必要的清理工作，例如断开网络，或删除临时文件。SIGKILL和SIGSTOP不能被捕获。 执行信号的默认操作 该操作取决于被发送的信号。默认操作通常是终止进程。例如，对SIGKILL来说就是这样。然而，许多信号是为在特定情况下的特殊目的而提供的，这些信号在默认的情况下是被忽略的，因为很多程序不关心它们。我们将很快介绍各种信号和及其默认操作。 过去，当信号被发送后，处理信号的函数只知道出现了某个信号，除此之外，对发生了什么情况却是一无所知。现在，内核能给接收信号的编程人员提供大量的上下文信息。正如我们后面将看到的，信号甚至能传递用户定义的数据。”
+摘录来自 Linux系统编程(第2版) [美]Robert Love 此材料可能受版权保护。
+2. 信号的产生方式? Linux信号可以通过以下方式产生：
+用户输入：例如在终端中按下ctrl&#43;c会发送SIGINT（中断）信号。
+系统事件：例如子进程完成，会发送SIGCHLD（子进程退出）信号。
+软件错误：例如访问非法内存地址，会发送SIGSEGV（段错误）信号。
+显式发送信号：例如使用kill命令向指定进程发送信号。
+硬件异常：例如除零错误，会发送SIGFPE（浮点异常）信号。
+定时器到期：例如使用alarm或setitimer函数设置定时器，当定时器到期时会发送SIGALRM（定时器到期）信号。
+其他情况：例如进程收到CTRL&#43;\键，会发送SIGQUIT（退出）信号。
+总之，信号是一种异步通知机制，用于处理各种事件和异常情况。在Linux系统中，信号起着非常重要的作用，因为它们允许不同进程之间进行通信，同时还提供了异常处理机制。
+3. 信号的处理方式? Linux信号的处理方式分为3种：忽略、捕获和默认动作。
+忽略信号：如果将一个信号设置为被忽略，当收到该信号时，系统不会采取任何措施。这对一些不需要处理的信号（例如SIGWINCH）非常有用。
+捕获信号：可以使用signal或sigaction函数来指定一个信号的处理程序。当收到该信号时，操作系统将调用此处理程序来处理它。处理程序可以执行任何适当的操作，例如打印消息、修改全局变量等。
+默认动作：每个信号都有一个默认动作。默认动作可能是终止进程、终止进程并生成核心转储文件、停止进程或什么都不做。通常通过改变信号的默认动作来处理信号是不安全的，因为可能会导致不可预测的行为。因此，使用捕获信号的方式进行信号处理更加可靠。
+要处理信号，请使用signal或sigaction函数。这些函数允许您指定您希望对信号执行的操作。您还可以使用kill函数向其他进程发送信号。
+4. 如何消除隐式转换？ 在 C&#43;&#43; 中，可以通过使用关键字 explicit 来消除隐式转换。将构造函数声明为 explicit 表示该构造函数只能用于显式初始化，而不能进行隐式类型转换。
+5. 重载、重写和隐藏的区别? 在 C&#43;&#43; 中，重载、重写和隐藏都是面向对象程序设计中的概念，它们的含义和使用方式有所不同。
+重载（Overloading）：指在同一个作用域内定义多个名称相同但参数列表不同的函数或者运算符。重载函数或运算符可以根据传递参数的类型和数量选择最匹配的版本进行调用。C&#43;&#43; 允许对大部分函数和运算符进行重载，包括构造函数、析构函数、赋值运算符等。
+重写（Overriding）：指在派生类中重新实现基类的虚函数，使得派生类的对象能够根据自己的需要提供更具体的实现。重写只适用于虚函数，因为只有虚函数才能在运行时根据对象的实际类型进行动态绑定。
+隐藏（Hiding）：指在派生类中定义了与基类同名的函数或变量，从而隐藏了基类的同名成员。如果派生类中没有显式地使用 using 关键字来引入基类的同名成员，则基类的同名成员在派生类中将无法直接访问。
+下面是一个简单的例子：
+#include &amp;lt;iostream&amp;gt; class Animal { public: virtual void makeSound() const { std::cout &amp;lt;&amp;lt; &amp;#34;Animal is making a sound\n&amp;#34;; } }; class Cat : public Animal { public: void makeSound() const override { std::cout &amp;lt;&amp;lt; &amp;#34;Meow!" />
+  <meta name="description" content="问题来源: https://www.zhihu.com/question/290102232/answer/2586920294 1. 信号的生命周期? “信号有一个非常明确的生命周期。首先，产生（raise）信号（有时也说信号被发出或生成）。然后内核存储信号，直到可以发送该信号。最后，一旦有空闲，内核就会适当地处理信号。根据进程的请求，内核会执行以下三种操作之一： 忽略信号 不采取任何操作。但是有两种信号不能被忽略：SIGKILL和SIGSTOP。这样做的原因是系统管理员需要能够杀死或停止进程，如果进程能够选择忽略SIGKILL（使进程不能被杀死）或SIGSTOP（使进程不能被停止）将破坏这一权力。 捕获并处理信号 内核会暂停该进程正在执行的代码，并跳转到先前注册过的函数。接下来进程会执行这个函数。一旦进程从该函数返回，它会跳回到捕获信号的地方继续执行。 经常捕获的两种信号是SIGINT和SIGTERM。进程捕获SIGINT来处理用户产生的中断符——例如终端能捕获该信号并返回到主提示符。进程捕获SIGTERM以便在结束前执行必要的清理工作，例如断开网络，或删除临时文件。SIGKILL和SIGSTOP不能被捕获。 执行信号的默认操作 该操作取决于被发送的信号。默认操作通常是终止进程。例如，对SIGKILL来说就是这样。然而，许多信号是为在特定情况下的特殊目的而提供的，这些信号在默认的情况下是被忽略的，因为很多程序不关心它们。我们将很快介绍各种信号和及其默认操作。 过去，当信号被发送后，处理信号的函数只知道出现了某个信号，除此之外，对发生了什么情况却是一无所知。现在，内核能给接收信号的编程人员提供大量的上下文信息。正如我们后面将看到的，信号甚至能传递用户定义的数据。”
+摘录来自 Linux系统编程(第2版) [美]Robert Love 此材料可能受版权保护。
+2. 信号的产生方式? Linux信号可以通过以下方式产生：
+用户输入：例如在终端中按下ctrl&#43;c会发送SIGINT（中断）信号。
+系统事件：例如子进程完成，会发送SIGCHLD（子进程退出）信号。
+软件错误：例如访问非法内存地址，会发送SIGSEGV（段错误）信号。
+显式发送信号：例如使用kill命令向指定进程发送信号。
+硬件异常：例如除零错误，会发送SIGFPE（浮点异常）信号。
+定时器到期：例如使用alarm或setitimer函数设置定时器，当定时器到期时会发送SIGALRM（定时器到期）信号。
+其他情况：例如进程收到CTRL&#43;\键，会发送SIGQUIT（退出）信号。
+总之，信号是一种异步通知机制，用于处理各种事件和异常情况。在Linux系统中，信号起着非常重要的作用，因为它们允许不同进程之间进行通信，同时还提供了异常处理机制。
+3. 信号的处理方式? Linux信号的处理方式分为3种：忽略、捕获和默认动作。
+忽略信号：如果将一个信号设置为被忽略，当收到该信号时，系统不会采取任何措施。这对一些不需要处理的信号（例如SIGWINCH）非常有用。
+捕获信号：可以使用signal或sigaction函数来指定一个信号的处理程序。当收到该信号时，操作系统将调用此处理程序来处理它。处理程序可以执行任何适当的操作，例如打印消息、修改全局变量等。
+默认动作：每个信号都有一个默认动作。默认动作可能是终止进程、终止进程并生成核心转储文件、停止进程或什么都不做。通常通过改变信号的默认动作来处理信号是不安全的，因为可能会导致不可预测的行为。因此，使用捕获信号的方式进行信号处理更加可靠。
+要处理信号，请使用signal或sigaction函数。这些函数允许您指定您希望对信号执行的操作。您还可以使用kill函数向其他进程发送信号。
+4. 如何消除隐式转换？ 在 C&#43;&#43; 中，可以通过使用关键字 explicit 来消除隐式转换。将构造函数声明为 explicit 表示该构造函数只能用于显式初始化，而不能进行隐式类型转换。
+5. 重载、重写和隐藏的区别? 在 C&#43;&#43; 中，重载、重写和隐藏都是面向对象程序设计中的概念，它们的含义和使用方式有所不同。
+重载（Overloading）：指在同一个作用域内定义多个名称相同但参数列表不同的函数或者运算符。重载函数或运算符可以根据传递参数的类型和数量选择最匹配的版本进行调用。C&#43;&#43; 允许对大部分函数和运算符进行重载，包括构造函数、析构函数、赋值运算符等。
+重写（Overriding）：指在派生类中重新实现基类的虚函数，使得派生类的对象能够根据自己的需要提供更具体的实现。重写只适用于虚函数，因为只有虚函数才能在运行时根据对象的实际类型进行动态绑定。
+隐藏（Hiding）：指在派生类中定义了与基类同名的函数或变量，从而隐藏了基类的同名成员。如果派生类中没有显式地使用 using 关键字来引入基类的同名成员，则基类的同名成员在派生类中将无法直接访问。
+下面是一个简单的例子：
+#include &amp;lt;iostream&amp;gt; class Animal { public: virtual void makeSound() const { std::cout &amp;lt;&amp;lt; &amp;#34;Animal is making a sound\n&amp;#34;; } }; class Cat : public Animal { public: void makeSound() const override { std::cout &amp;lt;&amp;lt; &amp;#34;Meow!" />
+  <meta property="og:locale" content="zh-CN" /><meta property="og:image" content="" />
+  
+
+  
+    <style>body{font-family:bree serif,sans-serif;-webkit-font-smoothing:antialiased;margin:0 20px}article{max-width:800px;margin-left:auto;margin-right:auto}a{color:#000;text-decoration:none}a:hover{font-weight:600;text-decoration:underline}.post-ads{margin:50px 0}.markdown-body{font-size:18px;max-width:100%}.markdown-body a{text-decoration:underline;text-decoration-color:#000}.markdown-body blockquote{margin:0;padding:0 1em;color:#57606a;border-left:.25em solid #d0d7de}.markdown-body pre{padding:16px;overflow:auto;border-radius:10px}.markdown-body code{padding:.2em .4em;font-size:85%;background-color:#f6f8fa;border-radius:6px}.markdown-body pre>code{padding:0;font-size:100%;background-color:inherit;border:0}.Chinese .markdown-body{line-height:200%}.site-date-catalog{font-size:2rem}.header-title{font-size:2rem;font-weight:700;margin-top:32px;font-family:bungee shade,sans-serif}.header-title a{text-decoration:none}.header-subtitle{color:#666}.header-items{margin:10px 0}.header-item{margin:0 5px}.header-line{width:100%;border-width:2px;border-color:#482936;border-style:solid none none none}.lang-switch{font-weight:600}#posts-list{min-height:600px}.posts-line{font-size:1.2rem;margin:12px 0}.posts-categories{font-size:.8rem;margin:auto;text-align:center}.posts-category{padding:3px 0;border:#000 2px solid;border-radius:5px}.site-footer{margin-top:50px}.site-footer-item{margin-right:12px}.post-content img{max-width:100%;display:block;margin-right:auto;margin-top:12px}.post-header{margin-bottom:50px}.post-title{font-size:2rem;font-weight:600}.post-tags{display:inline;font-weight:600;padding:2px 5px;margin-right:6px;border:#000 2px solid;border-radius:5px}.post-date{font-weight:800;font-style:italic}.post-author{float:right;font-weight:600}.page-content{min-height:60%}.post-content{margin-bottom:50px}.post-content p{hyphens:auto;line-height:1.8;text-justify:ideographic;margin-bottom:1em}.related-content{border-width:3px;border-style:solid;border-color:#000;padding:0 10px;margin-bottom:50px;margin-top:100px}.related-content li{margin:5px 0}.taxonomy-term{font-size:3rem}.gallery-img{text-align:center}.gallery-img span{text-align:center}.gallery-img-desc{font-size:.8em;font-weight:800}#disqus_thread{position:relative}#disqus_thread:after{content:"";display:block;height:55px;width:100%;position:absolute;bottom:0;background:#fff}@media screen and (max-width:600px){.header-title,.header-subtitle,.header-items{text-align:center}.posts-line{font-size:16px}.markdown-body{font-size:16px}.post-title{font-size:2rem}.post-content p{letter-spacing:.05em}}@media screen and (max-width:48em){.posts-category{display:none}}</style>
+  
+  
+    <style>.container,.container-fluid{margin-right:auto;margin-left:auto}.container-fluid{padding-right:2rem;padding-left:2rem}.row{box-sizing:border-box;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-flex:0;-ms-flex:0 1 auto;flex:initial;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;margin-right:-.5rem;margin-left:-.5rem}.row.reverse{-webkit-box-orient:horizontal;-webkit-box-direction:reverse;-ms-flex-direction:row-reverse;flex-direction:row-reverse}.col.reverse{-webkit-box-orient:vertical;-webkit-box-direction:reverse;-ms-flex-direction:column-reverse;flex-direction:column-reverse}.col-xs,.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9,.col-xs-offset-0,.col-xs-offset-1,.col-xs-offset-10,.col-xs-offset-11,.col-xs-offset-12,.col-xs-offset-2,.col-xs-offset-3,.col-xs-offset-4,.col-xs-offset-5,.col-xs-offset-6,.col-xs-offset-7,.col-xs-offset-8,.col-xs-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-xs{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-xs-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-xs-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-xs-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-xs-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-xs-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-xs-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-xs-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-xs-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-xs-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-xs-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-xs-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-xs-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-xs-offset-0{margin-left:0}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-11{margin-left:91.66666667%}.start-xs{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-xs{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-xs{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-xs{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-xs{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-xs{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-xs{-ms-flex-pack:distribute;justify-content:space-around}.between-xs{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-xs{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-xs{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}@media only screen and (min-width:48em){.container{width:49rem}.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-offset-0,.col-sm-offset-1,.col-sm-offset-10,.col-sm-offset-11,.col-sm-offset-12,.col-sm-offset-2,.col-sm-offset-3,.col-sm-offset-4,.col-sm-offset-5,.col-sm-offset-6,.col-sm-offset-7,.col-sm-offset-8,.col-sm-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-sm{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-sm-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-sm-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-sm-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-sm-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-sm-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-sm-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-sm-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-sm-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-sm-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-sm-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-sm-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-sm-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-sm-offset-0{margin-left:0}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-11{margin-left:91.66666667%}.start-sm{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-sm{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-sm{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-sm{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-sm{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-sm{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-sm{-ms-flex-pack:distribute;justify-content:space-around}.between-sm{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-sm{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-sm{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:64em){.container{width:65rem}.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-offset-0,.col-md-offset-1,.col-md-offset-10,.col-md-offset-11,.col-md-offset-12,.col-md-offset-2,.col-md-offset-3,.col-md-offset-4,.col-md-offset-5,.col-md-offset-6,.col-md-offset-7,.col-md-offset-8,.col-md-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-md{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-md-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-md-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-md-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-md-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-md-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-md-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-md-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-md-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-md-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-md-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-md-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-md-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-md-offset-0{margin-left:0}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-3{margin-left:25%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-6{margin-left:50%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-9{margin-left:75%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-11{margin-left:91.66666667%}.start-md{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-md{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-md{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-md{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-md{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-md{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-md{-ms-flex-pack:distribute;justify-content:space-around}.between-md{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-md{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-md{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:75em){.container{width:76rem}.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-offset-0,.col-lg-offset-1,.col-lg-offset-10,.col-lg-offset-11,.col-lg-offset-12,.col-lg-offset-2,.col-lg-offset-3,.col-lg-offset-4,.col-lg-offset-5,.col-lg-offset-6,.col-lg-offset-7,.col-lg-offset-8,.col-lg-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-lg{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-lg-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-lg-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-lg-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-lg-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-lg-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-lg-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-lg-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-lg-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-lg-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-lg-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-lg-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-lg-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-lg-offset-0{margin-left:0}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-11{margin-left:91.66666667%}.start-lg{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-lg{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-lg{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-lg{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-lg{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-lg{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-lg{-ms-flex-pack:distribute;justify-content:space-around}.between-lg{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-lg{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-lg{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}</style>
+  
+
+  
+
+  <link href="/index.xml" rel="alternate" type="application/rss+xml"
+    title="英桥在干什么吖">
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Bungee+Shade" rel="stylesheet">
+  
+  
+
+  
+  
+</head>
+
+
+<body>
+  <article class="post " id="article">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="site-header">
+          
+<header>
+  <div class="header-title">
+    <a href="/"
+      >阿桥在干什么吖</a
+    >
+  </div>
+  <div class="header-subtitle">the Death of You and Me.</div>
+</header>
+<div class="row end-md center-xs header-items">
+  
+  <div class="header-item">
+    <a href="https://github.com/yingqiao1998" target="_blank">Github</a>
+  </div>
+  
+</div>
+<div class="row end-xs">
+   
+</div>
+<div class="header-line"></div>
+
+        </div>
+        <header class="post-header">
+          <h1 class="post-title">一 总有不得不回答的问题</h1>
+          
+          <div class="row post-desc">
+            <div class="col-xs-6">
+              
+              <time class="post-date" datetime="2023-06-20 20:04:57 CST">
+                20 Jun 2023
+              </time>
+              
+            </div>
+            <div class="col-xs-6">
+              
+              <div class="post-author">
+                <a target="_blank" href="https://yingqiao1998.github.io/">@Yingqiao</a>
+              </div>
+              
+            </div>
+          </div>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h3 id="问题来源-httpswwwzhihucomquestion290102232answer2586920294">问题来源: <a href="https://www.zhihu.com/question/290102232/answer/2586920294">https://www.zhihu.com/question/290102232/answer/2586920294</a></h3>
+<h4 id="1-信号的生命周期">1. 信号的生命周期?</h4>
+<p>“信号有一个非常明确的生命周期。首先，产生（raise）信号（有时也说信号被发出或生成）。然后内核存储信号，直到可以发送该信号。最后，一旦有空闲，内核就会适当地处理信号。根据进程的请求，内核会执行以下三种操作之一：
+忽略信号
+不采取任何操作。但是有两种信号不能被忽略：SIGKILL和SIGSTOP。这样做的原因是系统管理员需要能够杀死或停止进程，如果进程能够选择忽略SIGKILL（使进程不能被杀死）或SIGSTOP（使进程不能被停止）将破坏这一权力。
+捕获并处理信号
+内核会暂停该进程正在执行的代码，并跳转到先前注册过的函数。接下来进程会执行这个函数。一旦进程从该函数返回，它会跳回到捕获信号的地方继续执行。
+经常捕获的两种信号是SIGINT和SIGTERM。进程捕获SIGINT来处理用户产生的中断符——例如终端能捕获该信号并返回到主提示符。进程捕获SIGTERM以便在结束前执行必要的清理工作，例如断开网络，或删除临时文件。SIGKILL和SIGSTOP不能被捕获。
+执行信号的默认操作
+该操作取决于被发送的信号。默认操作通常是终止进程。例如，对SIGKILL来说就是这样。然而，许多信号是为在特定情况下的特殊目的而提供的，这些信号在默认的情况下是被忽略的，因为很多程序不关心它们。我们将很快介绍各种信号和及其默认操作。
+过去，当信号被发送后，处理信号的函数只知道出现了某个信号，除此之外，对发生了什么情况却是一无所知。现在，内核能给接收信号的编程人员提供大量的上下文信息。正如我们后面将看到的，信号甚至能传递用户定义的数据。”</p>
+<p>摘录来自
+Linux系统编程(第2版)
+[美]Robert Love
+此材料可能受版权保护。</p>
+<h4 id="2-信号的产生方式">2. 信号的产生方式?</h4>
+<p>Linux信号可以通过以下方式产生：</p>
+<p>用户输入：例如在终端中按下ctrl+c会发送SIGINT（中断）信号。</p>
+<p>系统事件：例如子进程完成，会发送SIGCHLD（子进程退出）信号。</p>
+<p>软件错误：例如访问非法内存地址，会发送SIGSEGV（段错误）信号。</p>
+<p>显式发送信号：例如使用kill命令向指定进程发送信号。</p>
+<p>硬件异常：例如除零错误，会发送SIGFPE（浮点异常）信号。</p>
+<p>定时器到期：例如使用alarm或setitimer函数设置定时器，当定时器到期时会发送SIGALRM（定时器到期）信号。</p>
+<p>其他情况：例如进程收到CTRL+\键，会发送SIGQUIT（退出）信号。</p>
+<p>总之，信号是一种异步通知机制，用于处理各种事件和异常情况。在Linux系统中，信号起着非常重要的作用，因为它们允许不同进程之间进行通信，同时还提供了异常处理机制。</p>
+<h4 id="3-信号的处理方式">3. 信号的处理方式?</h4>
+<p>Linux信号的处理方式分为3种：忽略、捕获和默认动作。</p>
+<p>忽略信号：如果将一个信号设置为被忽略，当收到该信号时，系统不会采取任何措施。这对一些不需要处理的信号（例如SIGWINCH）非常有用。</p>
+<p>捕获信号：可以使用signal或sigaction函数来指定一个信号的处理程序。当收到该信号时，操作系统将调用此处理程序来处理它。处理程序可以执行任何适当的操作，例如打印消息、修改全局变量等。</p>
+<p>默认动作：每个信号都有一个默认动作。默认动作可能是终止进程、终止进程并生成核心转储文件、停止进程或什么都不做。通常通过改变信号的默认动作来处理信号是不安全的，因为可能会导致不可预测的行为。因此，使用捕获信号的方式进行信号处理更加可靠。</p>
+<p>要处理信号，请使用signal或sigaction函数。这些函数允许您指定您希望对信号执行的操作。您还可以使用kill函数向其他进程发送信号。</p>
+<h4 id="4-如何消除隐式转换">4. 如何消除隐式转换？</h4>
+<p>在 C++ 中，可以通过使用关键字 <code>explicit</code> 来消除隐式转换。将构造函数声明为 <code>explicit</code> 表示该构造函数只能用于显式初始化，而不能进行隐式类型转换。</p>
+<h4 id="5-重载重写和隐藏的区别">5. 重载、重写和隐藏的区别?</h4>
+<p>在 C++ 中，重载、重写和隐藏都是面向对象程序设计中的概念，它们的含义和使用方式有所不同。</p>
+<ol>
+<li>
+<p>重载（Overloading）：指在同一个作用域内定义多个名称相同但参数列表不同的函数或者运算符。重载函数或运算符可以根据传递参数的类型和数量选择最匹配的版本进行调用。C++ 允许对大部分函数和运算符进行重载，包括构造函数、析构函数、赋值运算符等。</p>
+</li>
+<li>
+<p>重写（Overriding）：指在派生类中重新实现基类的虚函数，使得派生类的对象能够根据自己的需要提供更具体的实现。重写只适用于虚函数，因为只有虚函数才能在运行时根据对象的实际类型进行动态绑定。</p>
+</li>
+<li>
+<p>隐藏（Hiding）：指在派生类中定义了与基类同名的函数或变量，从而隐藏了基类的同名成员。如果派生类中没有显式地使用 <code>using</code> 关键字来引入基类的同名成员，则基类的同名成员在派生类中将无法直接访问。</p>
+</li>
+</ol>
+<p>下面是一个简单的例子：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="">#include</span> <span style="">&lt;iostream&gt;</span><span style="">
+</span></span></span><span style="display:flex;"><span><span style=""></span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">class</span> <span style="font-weight:bold">Animal</span> {
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">public</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">virtual</span> <span style="">void</span> makeSound() <span style="font-weight:bold">const</span> {
+</span></span><span style="display:flex;"><span>        std::cout &lt;&lt; <span style="font-style:italic">&#34;Animal is making a sound</span><span style="font-weight:bold;font-style:italic">\n</span><span style="font-style:italic">&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">class</span> <span style="font-weight:bold">Cat</span> : <span style="font-weight:bold">public</span> Animal {
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">public</span>:
+</span></span><span style="display:flex;"><span>    <span style="">void</span> makeSound() <span style="font-weight:bold">const</span> <span style="font-weight:bold">override</span> {
+</span></span><span style="display:flex;"><span>        std::cout &lt;&lt; <span style="font-style:italic">&#34;Meow!</span><span style="font-weight:bold;font-style:italic">\n</span><span style="font-style:italic">&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">class</span> <span style="font-weight:bold">Lion</span> : <span style="font-weight:bold">public</span> Cat {
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">public</span>:
+</span></span><span style="display:flex;"><span>    <span style="">void</span> makeSound() <span style="font-weight:bold">const</span> {
+</span></span><span style="display:flex;"><span>        std::cout &lt;&lt; <span style="font-style:italic">&#34;Roar!</span><span style="font-weight:bold;font-style:italic">\n</span><span style="font-style:italic">&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="">int</span> main() {
+</span></span><span style="display:flex;"><span>    Animal* animal = <span style="font-weight:bold">new</span> Animal;
+</span></span><span style="display:flex;"><span>    animal-&gt;makeSound(); <span style="font-style:italic">// Animal is making a sound
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>
+</span></span><span style="display:flex;"><span>    Cat* cat = <span style="font-weight:bold">new</span> Cat;
+</span></span><span style="display:flex;"><span>    cat-&gt;makeSound(); <span style="font-style:italic">// Meow!
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>
+</span></span><span style="display:flex;"><span>    Animal* lion1 = <span style="font-weight:bold">new</span> Lion;
+</span></span><span style="display:flex;"><span>    lion1-&gt;makeSound(); <span style="font-style:italic">// Roar!
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>
+</span></span><span style="display:flex;"><span>    Lion* lion2 = <span style="font-weight:bold">new</span> Lion;
+</span></span><span style="display:flex;"><span>    lion2-&gt;makeSound(); <span style="font-style:italic">// Roar!
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">delete</span> animal;
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">delete</span> cat;
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">delete</span> lion1;
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">delete</span> lion2;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">return</span> 0;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>在上述代码中，<code>Animal</code> 类定义了一个虚函数 <code>makeSound()</code>，<code>Cat</code> 类重写了该函数，并提供了自己的实现。<code>Lion</code> 类继承了 <code>Cat</code> 类，它也重新实现了 <code>makeSound()</code> 函数，从而隐藏了基类 <code>Cat</code> 的同名成员。在程序中创建了不同类型的对象，并调用它们的 <code>makeSound()</code> 函数，可以看到不同类型的对象都有不同的输出结果。</p>
+<p>总之，在 C++ 中，重载、重写和隐藏是面向对象编程中的重要概念。对于不同的需求，我们需要选择适当的方法来解决问题。</p>
+<h4 id="6-volatile表示什么有什么作用">6. volatile表示什么？有什么作用？</h4>
+<p>在计算机编程中，<code>volatile</code>是一个关键字，它用于修饰变量，表示该变量可能会被意外地修改。具体地说，<code>volatile</code>告诉编译器，在对该变量进行优化时，不能假设该变量的值不会随时改变，从而确保程序可以正确地处理该变量。</p>
+<p>通常情况下，编译器会对代码进行各种优化，比如将变量存储在寄存器中，以提高程序的执行效率。然而，这种优化可能会导致某些变量的值无法及时更新，因为编译器并不知道该变量可能被其他线程或外部事件修改。如果对这些变量使用<code>volatile</code>修饰，则可以防止编译器对其进行一些不安全的优化，从而确保程序的正确性。</p>
+<p>除了防止编译器优化外，<code>volatile</code>还可以用于多线程编程中，例如在共享内存中访问变量时，由于多个线程可能同时访问该变量，因此需要使用<code>volatile</code>关键字来确保每个线程都能看到最新的值，从而避免数据竞争等问题。</p>
+<h4 id="7-static_castdynamic_castconst_castreinterpret_cast的各自作用和使用环境">7. static_cast&lt;&gt;,dynamic_cast&lt;&gt;,const_cast&lt;&gt;,reinterpret_cast&lt;&gt;的各自作用和使用环境?</h4>
+<p>这四种类型转换是C++中的强制类型转换，具体作用和使用环境如下：</p>
+<ol>
+<li><code>static_cast&lt;&gt;</code></li>
+</ol>
+<p><code>static_cast&lt;&gt;</code>是一种静态类型转换，可以在编译时将一种类型转换为另一种类型。它可以用于常规类型之间的转换，例如将整数转换为浮点数或将指针转换为void指针。此外，<code>static_cast&lt;&gt;</code>还可以用于转换指向基类的指针或引用为指向派生类的指针或引用。</p>
+<ol start="2">
+<li><code>dynamic_cast&lt;&gt;</code></li>
+</ol>
+<p><code>dynamic_cast&lt;&gt;</code>是一种动态类型转换，可以在运行时确定类型转换是否有效。它通常用于将指向基类的指针或引用转换为指向派生类的指针或引用。如果转换失败（即指向的对象不是目标类型的实例），则返回一个空指针或引发一个<code>std::bad_cast</code>异常。</p>
+<ol start="3">
+<li><code>const_cast&lt;&gt;</code></li>
+</ol>
+<p><code>const_cast&lt;&gt;</code>是一种类型转换，用于去除变量的常量性质，从而允许修改其值。通常情况下，<code>const_cast&lt;&gt;</code>用于将指向常量对象的指针或引用转换为指向非常量对象的指针或引用。需要注意的是，如果尝试通过<code>const_cast&lt;&gt;</code>修改一个本来就是常量的对象，将导致未定义行为。</p>
+<ol start="4">
+<li><code>reinterpret_cast&lt;&gt;</code></li>
+</ol>
+<p><code>reinterpret_cast&lt;&gt;</code>是一种类型转换，可以将任何指针或引用转换为另一种指针或引用。它通常用于将指针或引用转换为整数类型，以及在某些特殊情况下转换指针类型。需要注意的是，<code>reinterpret_cast&lt;&gt;</code>不能保证转换后的指针或引用具有有效性，因此使用时需要格外小心。</p>
+<p>总的来说，这四种类型转换都是C++中的强制类型转换，应该根据实际情况选择合适的类型转换操作。在进行类型转换时，需要注意类型兼容性和转换后的对象是否具有有效性等问题，避免出现未定义行为和安全风险。</p>
+<h4 id="8-malloc和new的区别">8. malloc和new的区别？</h4>
+<p><code>malloc</code>和<code>new</code>都可以用于动态分配内存，但它们有以下几个主要的区别：</p>
+<ol>
+<li>
+<p><code>malloc</code>是一个C标准库函数，而<code>new</code>是一个C++关键字。因此，<code>new</code>只能在C++中使用，而<code>malloc</code>可以在C和C++中都使用。</p>
+</li>
+<li>
+<p><code>malloc</code>函数只负责分配内存空间，而不会初始化这块内存。<code>new</code>操作符在分配内存之后还会调用类的构造函数，从而完成对象的初始化。</p>
+</li>
+<li>
+<p><code>new</code>操作符返回一个指向所分配内存的指针，并且根据类型进行了类型检查和类型转换，可以在编译时检查错误。而<code>malloc</code>函数只返回一个<code>void*</code>类型的指针，需要手动进行类型转换，容易出现类型错误。</p>
+</li>
+<li>
+<p><code>new</code>操作符在进行内存分配时，会考虑到类型的大小，并选择合适的内存对齐方式。而<code>malloc</code>函数则只是简单地分配一块连续的内存空间，无法保证对齐方式。</p>
+</li>
+<li>
+<p><code>new</code>操作符提供了对数组的支持，可以方便地创建动态数组对象，而<code>malloc</code>函数不能直接创建数组对象。</p>
+</li>
+</ol>
+<p>总的来说，相对于<code>malloc</code>函数，<code>new</code>操作符在使用上更为方便、安全、灵活，尤其在面向对象的程序设计中使用更为广泛。然而，对于一些特殊的场景或遗留的代码中，<code>malloc</code>函数仍然是必不可少的工具之一。</p>
+<h4 id="9-free和delete的区别">9. free和delete的区别?</h4>
+<p><code>free</code> 和 <code>delete</code> 都用于释放动态分配的内存，但它们之间存在着以下几个主要的区别：</p>
+<ol>
+<li>
+<p><code>free</code> 是 C 标准库函数，而 <code>delete</code> 是 C++ 关键字。因此，<code>free</code> 可以用于 C 和 C++ 中，而 <code>delete</code> 只能在 C++ 中使用。</p>
+</li>
+<li>
+<p><code>free</code> 只是简单地释放内存空间，不会调用对象的析构函数。而 <code>delete</code> 会先调用对象的析构函数，然后再释放内存空间。</p>
+</li>
+<li>
+<p>在释放数组时，<code>free</code> 函数不能自动区分数组中的元素类型，需要手动计算需要释放的内存大小。而 <code>delete[]</code> 操作符会自动识别数组中每个元素的类型，并逐个调用其析构函数。</p>
+</li>
+<li>
+<p><code>delete</code> 操作符只能用于释放通过 <code>new</code> 操作符分配的内存，而 <code>free</code> 可以用于释放任意由 <code>malloc</code> 等函数分配的内存空间。</p>
+</li>
+<li>
+<p>当试图释放空指针时，<code>free</code> 函数不会产生异常或错误，只是简单地忽略该操作；而 <code>delete</code> 操作符会抛出一个 <code>std::bad_alloc</code> 异常。</p>
+</li>
+</ol>
+<p>注意：对于使用 <code>new</code> 分配的内存，应该使用 <code>delete</code> 进行释放；对于使用 <code>malloc</code> 等函数分配的内存，应该使用 <code>free</code> 进行释放。在 C++ 中不应该混用 <code>new</code> 和 <code>malloc</code> 等函数分配的内存空间，否则可能会导致未定义的行为和内存泄漏等问题。</p>
+<h4 id="10-free一个数组时如何知道要释放多大的内存呢">10. free一个数组时如何知道要释放多大的内存呢？</h4>
+<p>在C或C++中，要释放一个数组，需要知道该数组占用的内存大小。如果你使用了动态内存分配函数（如malloc或calloc），则可以使用free函数来释放相应的内存。</p>
+<p>为了知道要释放多大的内存，可以使用sizeof运算符来计算数组占用的内存大小。例如，如果你有一个整数数组arr，可以使用以下代码来释放它所占用的内存：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>int* arr = (int*) malloc(10 * sizeof(int)); // 分配10个整数空间
+</span></span><span style="display:flex;"><span>// 使用数组
+</span></span><span style="display:flex;"><span>free(arr); // 释放内存
+</span></span></code></pre></div><p>在上面的代码中，malloc函数分配了10个整数空间，并返回指向这些空间的指针。由于每个整数占用4个字节的内存，因此数组占用40个字节的内存。然后，我们可以使用free函数来释放这40个字节的内存，如上述代码所示。</p>
+<h4 id="11-_stdcall和__cdecl的区别">11. _stdcall和__cdecl的区别？</h4>
+<p>stdcall和cdecl都是C语言中的函数调用约定，用于规定如何在程序中传递参数、返回值以及如何清理堆栈等。两者的主要区别在于参数的传递顺序、堆栈的清理方式以及函数名的修饰方式。</p>
+<p>__cdecl是默认的调用约定，其特点是参数从右向左依次入栈，由调用者来清理堆栈，函数名不会被修改。例如：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>int __cdecl add(int a, int b)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    return a + b;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>而__stdcall则是一种标准的Win API调用约定，其特点是参数从右向左依次入栈，由被调用函数来清理堆栈，函数名会被自动加上一个下划线。例如：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>int __stdcall add(int a, int b)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    return a + b;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>使用__stdcall时需要注意以下几点：</p>
+<ol>
+<li>
+<p>被调用函数必须显式地声明为__stdcall，否则默认采用__cdecl调用约定。</p>
+</li>
+<li>
+<p>使用__stdcall时，由于被调用函数负责清理堆栈，因此调用者不能通过修改栈指针来改变函数的返回地址，否则可能导致程序崩溃或结果异常。</p>
+</li>
+</ol>
+<p>总之，在实际应用中，我们需要根据具体情况选择合适的函数调用约定。如果是编写标准Win API库函数，建议使用__stdcall调用约定。而对于普通函数，可以使用默认的__cdecl调用约定。</p>
+<h4 id="12-linux内部提供了那些调试宏">12. linux内部提供了那些调试宏？</h4>
+<p>在Linux内核中提供了一些常用的调试宏，这些宏可以在代码中插入调试信息，帮助我们快速定位问题。其中比较常用的调试宏包括：</p>
+<ol>
+<li>printk：用于向控制台输出调试信息，类似于C语言中的printf函数。该宏用法如下：</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>printk(KERN_DEBUG &#34;debug message\n&#34;);
+</span></span></code></pre></div><ol start="2">
+<li>BUG_ON和WARN_ON：用于检测程序中的错误，并输出相应的调试信息。当检测到错误时，会触发内核崩溃或输出警告信息。这两个宏的用法如下：</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>BUG_ON(condition); // 检测condition是否为真，如果为真，则触发内核崩溃
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>WARN_ON(condition); // 检测condition是否为真，如果为真，则输出警告信息
+</span></span></code></pre></div><ol start="3">
+<li>dump_stack：用于输出当前堆栈信息，帮助我们分析程序运行状态。该宏用法如下：</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>dump_stack();
+</span></span></code></pre></div><ol start="4">
+<li>trace_printk：用于记录程序执行过程中的跟踪信息，与printk类似，但可以在性能开销较小的情况下进行跟踪。该宏用法如下：</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>trace_printk(&#34;trace message\n&#34;);
+</span></span></code></pre></div><p>除了以上几个调试宏外，还有许多其他的调试宏可供使用，例如dev_dbg、netdev_dbg、audit等。这些宏可以根据具体的应用场景选择使用。</p>
+<h4 id="13-手写线程安全的单例模式">13. 手写线程安全的单例模式？</h4>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="font-style:italic">///////////////////  加锁的懒汉式实现  //////////////////
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span><span style="font-weight:bold">class</span> <span style="font-weight:bold">SingleInstance</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">public</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 获取单实例对象
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">static</span> SingleInstance *&amp;GetInstance();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">//释放单实例，进程退出时调用
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">static</span> <span style="">void</span> deleteInstance();
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 打印实例地址
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="">void</span> Print();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">private</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 将其构造和析构成为私有的, 禁止外部构造和析构
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    SingleInstance();
+</span></span><span style="display:flex;"><span>    ~SingleInstance();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 将其拷贝构造和赋值构造成为私有函数, 禁止外部拷贝和赋值
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    SingleInstance(<span style="font-weight:bold">const</span> SingleInstance &amp;signal);
+</span></span><span style="display:flex;"><span>    SingleInstance &amp;<span style="font-weight:bold">operator</span>=(<span style="font-weight:bold">const</span> SingleInstance &amp;signal);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">private</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 唯一单实例对象指针
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">static</span> SingleInstance *m_SingleInstance;
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">static</span> std::mutex m_Mutex;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-style:italic">//初始化静态成员变量
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>SingleInstance *SingleInstance::m_SingleInstance = NULL;
+</span></span><span style="display:flex;"><span>std::mutex SingleInstance::m_Mutex;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>SingleInstance *&amp;SingleInstance::GetInstance()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">//  这里使用了两个 if判断语句的技术称为双检锁；好处是，只有判断指针为空的时候才加锁，
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-style:italic">//  避免每次调用 GetInstance的方法都加锁，锁的开销毕竟还是有点大的。
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">if</span> (m_SingleInstance == NULL) 
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        std::unique_lock&lt;std::mutex&gt; lock(m_Mutex); <span style="font-style:italic">// 加锁
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>        <span style="font-weight:bold">if</span> (m_SingleInstance == NULL)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            m_SingleInstance = <span style="font-weight:bold">new</span> (std::nothrow) SingleInstance;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">return</span> m_SingleInstance;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="">void</span> SingleInstance::deleteInstance()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std::unique_lock&lt;std::mutex&gt; lock(m_Mutex); <span style="font-style:italic">// 加锁
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">if</span> (m_SingleInstance)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="font-weight:bold">delete</span> m_SingleInstance;
+</span></span><span style="display:flex;"><span>        m_SingleInstance = NULL;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="">void</span> SingleInstance::Print()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	std::cout &lt;&lt; <span style="font-style:italic">&#34;我的实例内存地址是:&#34;</span> &lt;&lt; <span style="font-weight:bold">this</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>SingleInstance::SingleInstance()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std::cout &lt;&lt; <span style="font-style:italic">&#34;构造函数&#34;</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>SingleInstance::~SingleInstance()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std::cout &lt;&lt; <span style="font-style:italic">&#34;析构函数&#34;</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="font-style:italic">///////////////////  加锁的懒汉式实现  //////////////////
+</span></span></span></code></pre></div><h5 id="在c11后引入了线程安全的实现方式推荐使用这种方式">在c++11后引入了线程安全的实现方式,推荐使用这种方式:</h5>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="font-style:italic">///////////////////  内部静态变量的懒汉实现  //////////////////
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span><span style="font-weight:bold">class</span> <span style="font-weight:bold">Single</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">public</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 获取单实例对象
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">static</span> Single &amp;GetInstance();
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="font-style:italic">// 打印实例地址
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="">void</span> Print();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">private</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 禁止外部构造
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    Single();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 禁止外部析构
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    ~Single();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 禁止外部复制构造
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    Single(<span style="font-weight:bold">const</span> Single &amp;signal);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 禁止外部赋值操作
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    Single &amp;<span style="font-weight:bold">operator</span>=(<span style="font-weight:bold">const</span> Single &amp;signal);
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Single &amp;Single::GetInstance()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 局部静态特性的方式实现单实例
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">static</span> Single signal;
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">return</span> signal;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="">void</span> Single::Print()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	std::cout &lt;&lt; <span style="font-style:italic">&#34;我的实例内存地址是:&#34;</span> &lt;&lt; <span style="font-weight:bold">this</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Single::Single()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std::cout &lt;&lt; <span style="font-style:italic">&#34;构造函数&#34;</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Single::~Single()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std::cout &lt;&lt; <span style="font-style:italic">&#34;析构函数&#34;</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="font-style:italic">///////////////////  内部静态变量的懒汉实现  //////////////////
+</span></span></span></code></pre></div><p>饿汉模式天生线程安全:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="font-style:italic">////////////////////////// 饿汉实现 /////////////////////
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span><span style="font-weight:bold">class</span> <span style="font-weight:bold">Singleton</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">public</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 获取单实例
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">static</span> Singleton* GetInstance();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 释放单实例，进程退出时调用
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">static</span> <span style="">void</span> deleteInstance();
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 打印实例地址
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="">void</span> Print();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">private</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 将其构造和析构成为私有的, 禁止外部构造和析构
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    Singleton();
+</span></span><span style="display:flex;"><span>    ~Singleton();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 将其拷贝构造和赋值构造成为私有函数, 禁止外部拷贝和赋值
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    Singleton(<span style="font-weight:bold">const</span> Singleton &amp;signal);
+</span></span><span style="display:flex;"><span>    Singleton &amp;<span style="font-weight:bold">operator</span>=(<span style="font-weight:bold">const</span> Singleton &amp;signal);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold">private</span>:
+</span></span><span style="display:flex;"><span>    <span style="font-style:italic">// 唯一单实例对象指针
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>    <span style="font-weight:bold">static</span> Singleton *g_pSingleton;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="font-style:italic">// 代码一运行就初始化创建实例 ，本身就线程安全
+</span></span></span><span style="display:flex;"><span><span style="font-style:italic"></span>Singleton* Singleton::g_pSingleton = <span style="font-weight:bold">new</span> (std::nothrow) Singleton;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Singleton* Singleton::GetInstance()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">return</span> g_pSingleton;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="">void</span> Singleton::deleteInstance()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="font-weight:bold">if</span> (g_pSingleton)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="font-weight:bold">delete</span> g_pSingleton;
+</span></span><span style="display:flex;"><span>        g_pSingleton = NULL;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="">void</span> Singleton::Print()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std::cout &lt;&lt; <span style="font-style:italic">&#34;我的实例内存地址是:&#34;</span> &lt;&lt; <span style="font-weight:bold">this</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Singleton::Singleton()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std::cout &lt;&lt; <span style="font-style:italic">&#34;构造函数&#34;</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Singleton::~Singleton()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std::cout &lt;&lt; <span style="font-style:italic">&#34;析构函数&#34;</span> &lt;&lt; std::endl;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="font-style:italic">////////////////////////// 饿汉实现 /////////////////////
+</span></span></span></code></pre></div><h5 id="特点与选择">特点与选择</h5>
+<p>懒汉式是以时间换空间，适应于访问量较小时；推荐使用内部静态变量的懒汉单例，代码量少。</p>
+<p>饿汉式是以空间换时间，适应于访问量较大时，或者线程比较多的的情况。</p>
+<h4 id="14-引用和指针的区别">14. 引用和指针的区别?</h4>
+<p>C++ 中，指针和引用都是用来操作内存地址的。它们之间的主要区别如下：</p>
+<ol>
+<li>
+<p>指针可以被重新赋值和指向新的对象，而引用一旦绑定到一个对象上就不能再绑定到其他的对象上。</p>
+</li>
+<li>
+<p>指针可以为 NULL，表示不指向任何对象，而引用必须始终绑定到某个对象上。</p>
+</li>
+<li>
+<p>指针需要通过解引用（*）符号来访问所指向的对象，而引用直接访问所绑定的对象。</p>
+</li>
+<li>
+<p>指针可以进行算术运算（加减），而引用不支持算术运算。</p>
+</li>
+<li>
+<p>在函数参数列表中，当使用指针传递参数时，函数可以修改指针所指向的对象；当使用引用传递参数时，函数可以直接修改引用所绑定的对象。</p>
+</li>
+</ol>
+<p>总的来说，引用更易于使用和理解，因为它们提供了更简洁的语法，而且不会发生空指针的问题。但是在某些情况下，指针仍然是必需的，例如在动态内存分配、函数返回多个值时等。</p>
+<h4 id="heading"></h4>
+
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
+          <div class="row">
+            <div class="col-xs-12">
+              
+            </div>
+          </div>
+
+          
+
+
+
+          
+          
+          <div style="height: 50px;"></div>
+          
+        
+
+        <div class="site-footer">
+  
+  
+</div>
+
+      </div>
+    </div>
+  </article>
+
+  
+
+<script>
+  
+  
+    
+    
+  
+</script>
+
+  
+
+</body>
+
+</html>
