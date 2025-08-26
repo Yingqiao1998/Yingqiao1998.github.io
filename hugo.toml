@@ -11,7 +11,7 @@ unsafe = true
 [markup.highlight]
 guessSyntax = true
 noClasses = true
-style = "bw"
+style = "monokai"
 tabWidth = 2
 
 [author]
@@ -43,5 +43,5 @@ name = "Github"
 link = "https://github.com/Yingqiao1998"
 postHeaderContent = ""
 # postFooterContent = "<br/><br/><p>Subscribe to：<a target='_blank' href='https://mailchi.mp/a1a0d59e7a19/joway'>Joway's Blog</a></p>"
-extraCSSFiles = ["css/foo.css", "css/bar.css"]
-# extraCSSFiles = []
+# extraCSSFiles = ["css/foo.css", "css/bar.css"]
+extraCSSFiles = []
