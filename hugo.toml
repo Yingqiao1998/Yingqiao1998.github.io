@@ -30,9 +30,9 @@ weight = 2
 
 [params]
 mainSections = ["posts"]
-headTitle = "小桥在干什么吖"
-description = "那一天的忧郁,忧郁起来 那一天的寂寞,寂寞起来(手动流泪)"
-disqus = "Qiao"                               # disqus account name
+headTitle = "QIAO"
+description = "我呼唤你,欧洛尼斯,再度激起往昔的涟漪"
+disqus = "Qiao"                     # disqus account name
 extraHead = ''
 
 # [[params.socials]]
